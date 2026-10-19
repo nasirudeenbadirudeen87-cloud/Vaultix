@@ -13,9 +13,11 @@ import { useEscrows } from "../../hooks/useEscrows";
 import ActivityFeed from "@/components/common/ActivityFeed";
 import Link from "next/link";
 import { PlusCircle, Activity, X } from "lucide-react";
-import { useEscrowWebSocket } from "@/hooks/useEscrowWebSocket";
+import { useEscrowEvents } from "@/hooks/useEscrowEvents";
 import { EscrowCardSkeleton } from "@/components/ui/EscrowCardSkeleton";
 import { ActivityFeedSkeleton } from "@/components/ui/ActivityFeedSkeleton";
+import PendingInvitations from "@/components/dashboard/PendingInvitations";
+import { useWalletSession } from "@/hooks/useWalletSession";
 import {
   CanonicalEscrowStatus,
   normalizeEscrowStatus,
@@ -27,8 +29,9 @@ function DashboardContent() {
   const router = useRouter();
   const pathname = usePathname();
   const [showActivity, setShowActivity] = useState(false);
+  const { activePublicKey, canPerformProtectedActions } = useWalletSession();
 
-  useEscrowWebSocket();
+  useEscrowEvents();
 
   // Status filters are held canonically and translated to the backend wire
   // value only when the query is issued. Unknown values are dropped so a
@@ -111,6 +114,12 @@ function DashboardContent() {
 
   return (
     <>
+      <PendingInvitations
+        walletAddress={
+          canPerformProtectedActions ? activePublicKey : null
+        }
+      />
+
       {/* Mobile Activity Drawer */}
       {showActivity && (
         <div className="fixed inset-0 z-50 lg:hidden">

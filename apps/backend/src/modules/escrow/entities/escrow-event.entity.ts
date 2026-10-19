@@ -26,11 +26,13 @@ export enum EscrowEventType {
   DISPUTE_FILED = 'dispute_filed',
   DISPUTE_RESOLVED = 'dispute_resolved',
   EXPIRED = 'expired',
+  REFUND_REQUESTED = 'refund_requested',
   EXPIRATION_WARNING_SENT = 'expiration_warning_sent',
   MILESTONE_RELEASED = 'milestone_released',
 }
 
 @Entity('escrow_events')
+@Index('idx_escrow_events_escrow_id', ['escrowId'])
 export class EscrowEvent {
   @PrimaryGeneratedColumn('uuid')
   id: string;

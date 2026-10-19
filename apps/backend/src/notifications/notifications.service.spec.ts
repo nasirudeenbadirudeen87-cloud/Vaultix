@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationService } from './notifications.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -136,6 +135,18 @@ describe('NotificationService', () => {
       expect(emailSender.send).toHaveBeenCalledWith(mockNotification);
       expect(mockNotification.status).toBe(NotificationStatus.SENT);
       expect(repo.save).toHaveBeenCalledWith(mockNotification);
+    });
+
+    it('should skip email dispatch when the user opted into the digest', async () => {
+      repo.find.mockResolvedValue([mockNotification] as any);
+      preferenceService.getUserPreferences.mockResolvedValue([
+        { ...mockPref, digestEnabled: true },
+      ] as any);
+
+      await service.processPendingNotifications();
+
+      expect(emailSender.send).not.toHaveBeenCalled();
+      expect(mockNotification.status).toBe(NotificationStatus.SENT);
     });
 
     it('should increment retryCount on failure', async () => {
